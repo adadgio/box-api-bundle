@@ -6,6 +6,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
+use Adadgio\BoxApiBundle\Event\NotificationEvent;
+
 class WebhookController extends Controller
 {
     /**
@@ -16,23 +18,15 @@ class WebhookController extends Controller
      */
     public function webhookAction(Request $request)
     {
-        $content = json_decode($request->getContent());
+        $event = (new NotificationEvent())
+            ->setRequest($request)
+            ->decode();
+            
+        // dispatch an event
+        $this
+            ->get('event_dispatcher')
+            ->dispatch(NotificationEvent::BOX_VIEW_NOTIFICATION_EVENT, $event);
 
-        switch ($content['type']) {
-            case 'verification':
-                
-            break;
-            case '':
-
-            break;
-            default:
-
-            break;
-        }
-        // if ($content['type'] === 'verification') {
-        //     // skip
-        // }
-
-        return new JsonResponse(array('success' => true, 'message' => 'ackowledged'), 200);
+        return new JsonResponse(array('success' => true, 'message' => sprintf('Dispatched %s', NotificationEvent::BOX_VIEW_NOTIFICATION_EVENT)), 200);
     }
 }

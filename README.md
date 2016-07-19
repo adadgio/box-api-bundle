@@ -56,7 +56,7 @@ Upload a document and schedule it to be transformed by the box view api (see als
 
 ```php
 $path = 'http://photos.jardindupicvert.com/catalogue.pdf';
-// $path = '/Me/AndMyself/AndMyOwnServer/with/some-document.docx'; // this works to
+// $path = '/Me/AndMyself/AndMyOwnServer/path/some-document.docx'; // this works to!
 
 $response = $this->
     ->get('adadgio_box_api.box_view')
@@ -65,7 +65,58 @@ $response = $this->
     ->upload($path)
     ->getResponse();
 
-print_r($response); // an easy to manipulate BoxResponse() object
+print_r($response); // an easy to manipulate \BoxResponse object
+```
+
+A few seconds alter, the box service will post events into the webhook endpoint we have configured for you. You just need to hook up on that event with a simple listener and perform any other action you want.
+
+```yml
+services:
+    app.box_view.notification_listener:
+        public: false:
+        class: AppBundle\Listener\BoxViewNotification
+        tags:
+            - {name: kernel.event_listener, event: adadgio.box_view.notification, method: onNotificationReceived }
+```
+
+```php
+namespace AppBundle\Listener
+
+use Adadgio\BoxApiBundle\Event\NotificationEvent;
+
+class BoxViewNotification
+{
+    // ... other methods that probably make coffee or something...
+
+    public function onNotificationReceived(NotificationEvent $event)
+    {
+        $request = $event->getRequest();
+        $rawRequestContent = $request->getContent();
+        $decodedRequestContent = $event->getDecodedRequestContent(); // this is much cleaner (you'll avoid errors)
+
+        // box sends several types of notifications (you probably don't need all of them)
+        // but hey, its really up to you from here...
+        $doSomething = $this->handleNotificationTypes($rawRequestContent);
+    }
+    
+    public function handleNotificationTypes(array $rawRequestContent)
+    {
+        switch ($content['type']) {
+            case 'verification':
+                return false; // verification sent when webhook is changed
+            break;
+            case 'document.??':
+                return false; // i don't know the other ones by heart
+            break;
+            case 'document.done':
+                return true; // this is probably what you've been eagerly waiting for!
+            break;
+            default:
+                return false;
+            break;
+        }
+    }
+}
 ```
 
 ## Set up an alternative webhook endpoint
