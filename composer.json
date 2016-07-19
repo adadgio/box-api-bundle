@@ -1,0 +1,19 @@
+{
+    "name": "adadgio/boxapi-bundle",
+    "type": "library",
+    "description": "Adadgio Box Api Bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Romain BRUCKERT",
+            "email": "romain.bruckert.esc@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3"
+    },
+    "autoload": {
+        "psr-0": { "Adadgio\\BoxApiBundle\\": "" },
+        "psr-4": { "Adadgio\\BoxApiBundle\\": "" }
+    }
+}
