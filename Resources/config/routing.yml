@@ -1,0 +1,3 @@
+adadgio_box_api_webhook_notification:
+    path:       /adadgio/boxview/webhook/notification
+    defaults:   { _controller: AdadgioBoxApiBundle:Webhook:webhook }

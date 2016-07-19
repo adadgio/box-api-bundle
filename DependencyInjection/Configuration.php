@@ -18,7 +18,7 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('adadgio_box_api');
-        
+
         // Here you should define the parameters that are allowed to
         // configure your bundle. See the documentation linked above for
         // more information on that topic.
@@ -28,7 +28,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('box_view')
                     ->children()
                         ->scalarNode('api_key')->isRequired()->end()
-                        ->scalarNode('webhook')->isRequired()->end()
+                        ->scalarNode('webhook')->defaultValue(null)->end()
                         ->end()
                     ->end()
                 ->end()

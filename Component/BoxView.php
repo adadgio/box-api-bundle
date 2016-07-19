@@ -47,7 +47,6 @@ class BoxView
     public function __construct(array $config)
     {
         $this->config = $config;
-
         $this->options = array(
             'svg'        => false,
             'thumbnails' => false,
@@ -110,10 +109,60 @@ class BoxView
     }
 
     /**
+     * Sets up a webhook url to receive notifications from the BoxView API service.
+     * Only one webhook can be set per application. Box will test that url upon request.
+     *
+     * @param  string Webhook callback url
+     * @return object \BoxView
+     */
+    public function setWebhook($url)
+    {
+        $this->response = $this->request(array(
+            CURLOPT_URL           => $this->getEndpoint(array('settings', 'webhook')),
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS    => array('url' => rtrim($url, '/')),
+            CURLOPT_HTTPHEADER    => array('Content-Type: application/json'),
+        ));
+
+        return $this;
+    }
+
+    /**
+     * Retrieve the current webhook url that was set for this application.
+     *
+     * @return object \BoxView
+     */
+    public function getWebhook()
+    {
+        $this->response = $this->request(array(
+            CURLOPT_URL        => $this->getEndpoint(array('settings', 'webhook')),
+            CURLOPT_HTTPHEADER => array('Content-Type: application/json'),
+        ));
+
+        return $this;
+    }
+
+    /**
+     * Delete the current webhook callback url that was set for this application.
+     *
+     * @return object \BoxView
+     */
+    public function deleteWebhook()
+    {
+        $this->response = $this->request(array(
+            CURLOPT_URL           => $this->getEndpoint(array('settings', 'webhook')),
+            CURLOPT_CUSTOMREQUEST => 'DELETE',
+            CURLOPT_HTTPHEADER    => array('Content-Type: application/json'),
+        ));
+
+        return $this;
+    }
+
+    /**
      * Perform a curl request to the API and turns it into a response.
      *
-     * @param  array Curl parameters
-     * @return array
+     * @param  array  Curl parameters
+     * @return object \BoxResponse
      */
     protected function request(array $options = array())
     {
@@ -128,11 +177,11 @@ class BoxView
         $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $error = curl_error($curl);
         $ctype = curl_getinfo($curl, CURLINFO_CONTENT_TYPE);
-
         curl_close($curl);
+
         return new BoxResponse($body, $code);
     }
-    
+
     /**
      * Create a box api endpoint from uri segments.
      *
@@ -179,10 +228,10 @@ class BoxView
             ));
         });
 
-        // encode the post fields to json Content-Type: application/json vs Content-Type: multipart/form-data
+        // encode the post fields to json "Content-Type: application/json" or custom, usualy "Content-Type: multipart/form-data"
         $resolver->setNormalizer(CURLOPT_POSTFIELDS, function ($options, $value) {
             if (in_array('Content-Type: application/json', $options[CURLOPT_HTTPHEADER])) {
-                return json_encode($value); // Content-Type: application/json
+                return json_encode($value);
             } else {
                 return $value;
             }

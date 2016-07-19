@@ -33,9 +33,9 @@ class BoxResponse
      */
     public function getContent()
     {
-        return $this->response;
+        return $this->content;
     }
-    
+
     /**
      * Get response code.
      *
@@ -44,6 +44,16 @@ class BoxResponse
     public function getCode()
     {
         return $this->code;
+    }
+    
+    /**
+     * Get response contents.
+     *
+     * @return array Decoded json response
+     */
+    public function getContentParameter($key)
+    {
+        return isset($this->content[$key]) ? $this->content[$key] : null;
     }
 
     /**
