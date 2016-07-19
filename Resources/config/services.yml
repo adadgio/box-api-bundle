@@ -1,0 +1,4 @@
+services:
+    adadgio_box_api.box_view:
+        class: Adadgio\BoxApiBundle\Component\BoxView
+        arguments: [ "%adadgio_box_api.box_view%" ]

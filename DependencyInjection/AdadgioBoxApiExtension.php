@@ -24,5 +24,7 @@ class AdadgioBoxApiExtension extends Extension
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
+
+        $container->setParameter('adadgio_box_api.box_view', $config['box_view']);
     }
 }
