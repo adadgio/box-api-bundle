@@ -23,9 +23,16 @@ class BoxResponse
     public function __construct($content, $code)
     {
         $this->code = $code;
-        $this->content = json_decode($content, true);
-    }
 
+        if (is_string($content)) {
+            $this->content = json_decode($content, true);
+        } else if (is_bool($content)) {
+            $this->content = (boolean) $content;
+        } else {
+            $this->content = $content;
+        }
+    }
+    
     /**
      * Get response contents.
      *
@@ -45,7 +52,7 @@ class BoxResponse
     {
         return $this->code;
     }
-    
+
     /**
      * Get response contents.
      *

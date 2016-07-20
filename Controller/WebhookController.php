@@ -27,6 +27,10 @@ class WebhookController extends Controller
             ->get('event_dispatcher')
             ->dispatch(NotificationEvent::BOX_VIEW_NOTIFICATION_EVENT, $event);
 
-        return new JsonResponse(array('success' => true, 'message' => sprintf('Dispatched %s', NotificationEvent::BOX_VIEW_NOTIFICATION_EVENT)), 200);
+        return new JsonResponse(array(
+            'success' => true,
+            'details' => $event->getDecodedRequestContent(),
+            'message' => sprintf('Dispatched %s', NotificationEvent::BOX_VIEW_NOTIFICATION_EVENT
+        )), 200);
     }
 }

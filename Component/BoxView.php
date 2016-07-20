@@ -23,6 +23,11 @@ class BoxView
     private $response;
 
     /**
+     * @var array Runtime parameters
+     */
+    private $runtime;
+
+    /**
      * @var string Base BoxView standard API url
      */
     const VIEW_API_URL = 'https://view-api.box.com/1';
@@ -39,6 +44,13 @@ class BoxView
     const MULTIPART_UPLOAD = 'MULTIPART_UPLOAD';
 
     /**
+     * Constants for documents type download.
+     */
+    const ZIP = 'zip';
+    const PDF = 'pdf';
+    const TXT = 'txt';
+
+    /**
      * Service constructor.
      *
      * @param  array Bundle configuration nodes
@@ -50,6 +62,9 @@ class BoxView
         $this->options = array(
             'svg'        => false,
             'thumbnails' => false,
+        );
+        $this->runtime = array(
+            'download_dir' => null,
         );
     }
 
@@ -92,9 +107,9 @@ class BoxView
     /**
      * Uploads a file to box via remote url.
      *
-     * @param string Remote file http url or server local path
-     * @param array  Upload options (scg, thumbnails...)
-     * @return array Box api response
+     * @param  string Remote file http url or server local path
+     * @param  array  Upload options (scg, thumbnails...)
+     * @return array  \BoxView
      */
     public function upload($filepath)
     {
@@ -104,6 +119,57 @@ class BoxView
             CURLOPT_POSTFIELDS    => $this->configureUploadPostFields($filepath),
             CURLOPT_HTTPHEADER    => array((self::isUrl($filepath)) ? 'Content-Type: application/json' : 'Content-Type: multipart/form-data'),
         ));
+
+        return $this;
+    }
+
+    /**
+     * Download document or converted zip assets.
+     *
+     * @param  string Box document uuid
+     * @param  string Requested format (pdf, zip, txt)
+     * @return array  \BoxView
+     */
+    public function download($uid, $ext = 'pdf')
+    {
+        // the api only accepts zip|pdf|txt|<null>
+        if (!in_array($ext, array(static::ZIP, static::PDF, static::TXT))) {
+            throw new \Exception('Extension not allowed, only accepting "zip|pdf|txt"');
+        }
+
+        // add a dot to the extension
+        $ext = '.'.ltrim($ext, '.');
+
+        // check dir path
+        if (null === $this->runtime['download_dir']) {
+            throw new \Exception('A destination directory must be configured, use BoxView::in($dir) option to set that');
+        }
+
+        // create a file destination path
+        $basename = 'content'.$ext;
+        $destination = $this->runtime['download_dir'].'/'.$basename;
+
+        $this->response = $this->requestFile($destination, array(
+            CURLOPT_URL => $this->getEndpoint(array('documents', $uid, $basename)),
+            // CURLOPT_URL => sprintf(static::VIEW_API_URL. '/documents/%s/content%s', $uid, $ext),
+        ));
+
+        return $this;
+    }
+    
+    /**
+     * Allows a downloaded file to be saved into the specified directory.
+     *
+     * @param string Directory server path
+     * @return \BoxView
+     */
+    public function in($dir)
+    {
+        if (false === is_dir($dir)) {
+            throw new \Exception(sprintf('This is not a directory "%s"'), $dir);
+        }
+
+        $this->runtime['download_dir'] = rtrim($dir, '/');
 
         return $this;
     }
@@ -161,7 +227,7 @@ class BoxView
     /**
      * Perform a curl request to the API and turns it into a response.
      *
-     * @param  array  Curl parameters
+     * @param array Curl request parameters
      * @return object \BoxResponse
      */
     protected function request(array $options = array())
@@ -178,6 +244,44 @@ class BoxView
         $error = curl_error($curl);
         $ctype = curl_getinfo($curl, CURLINFO_CONTENT_TYPE);
         curl_close($curl);
+
+        return new BoxResponse($body, $code);
+    }
+
+    /**
+     * Perform a curl request to retrieve a remote file contents.
+     *
+     * @param string File destination server path
+     * @param array Curl request parameters
+     * @return object \BoxResponse
+     */
+    protected function requestFile($destination, array $options = array())
+    {
+        // set curl options
+        $resolver = new OptionsResolver();
+        $this->configureRequest($resolver);
+        $options = $resolver->resolve($options);
+
+        $fp = fopen($destination, 'w');
+
+        $curl = curl_init();
+        curl_setopt_array($curl, $options);
+        curl_setopt_array($curl, array(
+            CURLOPT_FILE => $fp,
+        ));
+
+        $body  = curl_exec($curl);
+        $code  = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $ctype = curl_getinfo($curl, CURLINFO_CONTENT_TYPE);
+
+        // ensure our request aint got errors.
+        if($error = curl_error($curl)) {
+            curl_close($curl);
+            throw new \Exception($error);
+        }
+
+        curl_close($curl);
+        fclose($fp);
 
         return new BoxResponse($body, $code);
     }
