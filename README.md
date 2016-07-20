@@ -138,6 +138,7 @@ class BoxViewNotification
             // nothing to do, although could retrieve meta data at this point
         } else if ($decodedRequestContent['type'] === BoxView::DOCUMENT_DONE) {
             // download document contents or meta data !
+            $uid = $decodedRequestContent['data']['id']; // something like "h7d9760364d887b5b960b6e8a2e1c3ec"
         } else {
             // other statuses
             // to document...
