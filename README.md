@@ -48,6 +48,7 @@ Run the command to update yout webhook endpoint in your box account.
 
 ```bash
 php app/console adadgio:box:update
+php bin/console adadgio:box:update // Sf3
 ```
 
 # Usage of the BoxView API
