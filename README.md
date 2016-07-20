@@ -125,15 +125,11 @@ class BoxViewNotification
         $request = $event->getRequest();
         $rawRequestContent = $request->getContent();
         $decodedRequestContent = $event->getDecodedRequestContent(); // this is much cleaner (you'll avoid errors)
-
+        
         //debug($decodedRequestContent, true);
         // box sends several types of notifications (you probably don't need all of them)
         // but hey, its really up to you from here...
 
-        // statuses
-        //  - "verification"
-        //  - "document.viewable"
-        //  - "document.done"
         if ($decodedRequestContent['type'] === BoxView::DOCUMENT_VIEWABLE) {
             // nothing to do, although could retrieve meta data at this point
         } else if ($decodedRequestContent['type'] === BoxView::DOCUMENT_DONE) {
