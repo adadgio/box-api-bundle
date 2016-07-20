@@ -94,29 +94,81 @@ class BoxViewNotification
         $rawRequestContent = $request->getContent();
         $decodedRequestContent = $event->getDecodedRequestContent(); // this is much cleaner (you'll avoid errors)
 
+        //debug($decodedRequestContent, true);
         // box sends several types of notifications (you probably don't need all of them)
         // but hey, its really up to you from here...
-        $doSomething = $this->handleNotificationTypes($rawRequestContent);
+
+        // statuses
+        //  - "verification"
+        //  - "document.viewable"
+        //  - "document.done"
     }
-    
-    public function handleNotificationTypes(array $rawRequestContent)
+}
+```
+
+When you get an event you can read the event request details and retrieve document meta data or contents.
+
+```php
+namespace AppBundle\Listener
+
+use Adadgio\BoxApiBundle\Component\BoxView;
+use Adadgio\BoxApiBundle\Event\NotificationEvent;
+
+class BoxViewNotification
+{
+    // ... other methods that probably make coffee or something...
+
+    public function onNotificationReceived(NotificationEvent $event)
     {
-        switch ($content['type']) {
-            case 'verification':
-                return false; // verification sent when webhook is changed
-            break;
-            case 'document.??':
-                return false; // i don't know the other ones by heart
-            break;
-            case 'document.done':
-                return true; // this is probably what you've been eagerly waiting for!
-            break;
-            default:
-                return false;
-            break;
+        $request = $event->getRequest();
+        $rawRequestContent = $request->getContent();
+        $decodedRequestContent = $event->getDecodedRequestContent(); // this is much cleaner (you'll avoid errors)
+
+        //debug($decodedRequestContent, true);
+        // box sends several types of notifications (you probably don't need all of them)
+        // but hey, its really up to you from here...
+
+        // statuses
+        //  - "verification"
+        //  - "document.viewable"
+        //  - "document.done"
+        if ($decodedRequestContent['type'] === BoxView::DOCUMENT_VIEWABLE) {
+            // nothing to do, although could retrieve meta data at this point
+        } else if ($decodedRequestContent['type'] === BoxView::DOCUMENT_DONE) {
+            // download document contents or meta data !
+        } else {
+            // other statuses
+            // to document...
         }
     }
 }
+```
+
+## Download document contents or meta data
+
+You can download document original file or converted assets once the document is "done", or meta data once the document is viewable.
+
+```php
+// download contents
+$dir = __DIR__.'/docs'; // must be writable
+
+$response = $boxView
+    ->in($dir)
+    ->download('17dj760364d445b5b960b6e8a2e1c3ec')
+    ->getResponse();
+
+// success or error is given by response code (200 ok, 404 not found, 202 document not yes ready)
+// print_r($response->getCode());
+```
+
+```php
+// download meta data
+$response = $boxView
+    ->metadata('17dj760364d445b5b960b6e8a2e1c3ec')
+    ->getResponse();
+
+// success or error is given by response code (200 ok, 404 not found, 202 document not yes ready)
+// print_r($response->getCode());
 ```
 
 ## Set up an alternative webhook endpoint

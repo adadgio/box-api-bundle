@@ -51,6 +51,12 @@ class BoxView
     const TXT = 'txt';
 
     /**
+     * Constants for documents statuses.
+     */
+    const DOCUMENT_DONE = 'document.done';
+    const DOCUMENT_VIEWABLE = 'document.viewable';
+    
+    /**
      * Service constructor.
      *
      * @param  array Bundle configuration nodes
@@ -151,12 +157,27 @@ class BoxView
 
         $this->response = $this->requestFile($destination, array(
             CURLOPT_URL => $this->getEndpoint(array('documents', $uid, $basename)),
-            // CURLOPT_URL => sprintf(static::VIEW_API_URL. '/documents/%s/content%s', $uid, $ext),
         ));
 
         return $this;
     }
-    
+
+    /**
+     * Retrieve document meta data.
+     *
+     * @param  string Box document uuid
+     * @return array  \BoxView
+     */
+    public function metadata($uid)
+    {
+        $this->response = $this->request(array(
+            CURLOPT_URL => $this->getEndpoint(array('documents', $uid)),
+            CURLOPT_HTTPHEADER => array('Content-Type: application/json'),
+        ));
+
+        return $this;
+    }
+
     /**
      * Allows a downloaded file to be saved into the specified directory.
      *
