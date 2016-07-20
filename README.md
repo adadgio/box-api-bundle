@@ -62,7 +62,7 @@ $path = 'http://photos.jardindupicvert.com/catalogue.pdf';
 $response = $this->
     ->get('adadgio_box_api.box_view')
     ->setSvg(true) // false by default, will create svg images for compatibility
-    ->setThumbnails(true) // false by default, will also create thumbs when transformed
+    ->setThumbnails(true) // false by default, will also create thumbs (128x128, 256x256 and 480x480)
     ->upload($path)
     ->getResponse();
 

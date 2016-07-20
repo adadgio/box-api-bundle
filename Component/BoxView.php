@@ -55,7 +55,7 @@ class BoxView
      */
     const DOCUMENT_DONE = 'document.done';
     const DOCUMENT_VIEWABLE = 'document.viewable';
-    
+
     /**
      * Service constructor.
      *
