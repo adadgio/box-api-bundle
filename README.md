@@ -72,6 +72,7 @@ print_r($response); // an easy to manipulate \BoxResponse object
 A few seconds alter, the box service will post events into the webhook endpoint we have configured for you. You just need to hook up on that event with a simple listener and perform any other action you want.
 
 ```yml
+# in your app services.yml
 services:
     app.box_view.notification_listener:
         public: false:
