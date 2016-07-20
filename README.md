@@ -95,8 +95,7 @@ class BoxViewNotification
         $request = $event->getRequest();
         $rawRequestContent = $request->getContent();
         $decodedRequestContent = $event->getDecodedRequestContent(); // this is much cleaner (you'll avoid errors)
-
-        //debug($decodedRequestContent, true);
+        
         // box sends several types of notifications (you probably don't need all of them)
         // but hey, its really up to you from here...
 
@@ -125,8 +124,7 @@ class BoxViewNotification
         $request = $event->getRequest();
         $rawRequestContent = $request->getContent();
         $decodedRequestContent = $event->getDecodedRequestContent(); // this is much cleaner (you'll avoid errors)
-        
-        //debug($decodedRequestContent, true);
+
         // box sends several types of notifications (you probably don't need all of them)
         // but hey, its really up to you from here...
 
