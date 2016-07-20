@@ -95,7 +95,7 @@ class BoxViewNotification
         $request = $event->getRequest();
         $rawRequestContent = $request->getContent();
         $decodedRequestContent = $event->getDecodedRequestContent(); // this is much cleaner (you'll avoid errors)
-        
+
         // box sends several types of notifications (you probably don't need all of them)
         // but hey, its really up to you from here...
 
@@ -143,7 +143,7 @@ class BoxViewNotification
 
 ## Download document contents or meta data
 
-You can download document original file or converted assets once the document is "done", or meta data once the document is viewable.
+You can download document original file or converted assets once the document is *done*, or meta data once the document is *viewable*.
 
 ```php
 // download contents

@@ -41,13 +41,12 @@ class WebhookUpdateCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->getContainer();
-
         $this->router = $container->get('router');
         $this->boxView = $container->get('adadgio_box_api.box_view');
 
         // resolve the webhook new url (from config or default)
         $webhookUrl = $this->resolveWebhookUrl($container);
-        
+
         // retrieve previous webhook url
         $response = $this->boxView
             ->getWebhook()
